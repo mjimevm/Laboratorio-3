@@ -203,19 +203,38 @@ public class Main {
                     System.out.println("6. Reporte de Citas");
                     System.out.println("7. Análisis financiero");
                     System.out.println("8. Historial de Reagendamientos");
+                    System.out.println("9. Volver al menú principal");
                     System.out.println("Seleccione una opción:");
-
-
                     int opcionManager = teclado.nextInt();
+
                     switch (opcionManager) {
                         case 1:
                             break;
                         case 2:
                         break;
+                        case 3:
+                            break;
+                        case 4:
+                            break;
+                        case 5:
+                            break;
+                        case 6:
+                            break;
+                        case 7:
+                            break;
+                        case 8:
+                            break;
+                        case 9:
+                            break;
+                        default:
+                            System.out.println("Opción no válida. Intente de nuevo.");
+                            break;
+                    }
+                    break;
                 case 8:
                     System.out.println("Saliendo del sistema. ¡Hasta luego!");
                     break;
-            }
+                    
                 default:
                     System.out.println("Opción no válida. Intente de nuevo.");
                     break;
