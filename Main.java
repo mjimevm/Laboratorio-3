@@ -1,7 +1,6 @@
 import java.util.Scanner;
 
 
-
 public class Main {
     public static void main(String[] args) {
         System.out.println("Bienvenido al sistema de gestión de médicos.");
@@ -9,7 +8,7 @@ public class Main {
         Scanner teclado = new Scanner(System.in);
         int opcion = 0;
 
-        while (opcion != 7) {
+        while (opcion != 8) {
             System.out.println("\n--- Menú Principal ---");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Agregar Médico");
@@ -18,7 +17,8 @@ public class Main {
             System.out.println("4. Agendar Cita");
             System.out.println("5. Mostrar Citas");
             System.out.println("6. Cambiar Cita");
-            System.out.println("7. Salir");
+            System.out.println("7. Operaciones de manager");
+            System.out.println("8. Salir");
             opcion = teclado.nextInt();
 
             switch (opcion) {
@@ -192,12 +192,34 @@ public class Main {
                         System.out.println("No se pudo reagendar la cita (no existe o sin disponibilidad).");
                     }
                     break;
-
                 case 7:
+                    System.out.println("\nOperaciones de manager:");
+                    System.out.println("Seleccione una opción:");
+                    System.out.println("1. Encontrar personal disponible");
+                    System.out.println("2. Reportes de Nómina por departamento");
+                    System.out.println("3. Gestión de Conflictos de Horarios");
+                    System.out.println("4. Análisis de Utilización");
+                    System.out.println("5. Reportes de personal");
+                    System.out.println("6. Reporte de Citas");
+                    System.out.println("7. Análisis financiero");
+                    System.out.println("8. Historial de Reagendamientos");
+                    System.out.println("Seleccione una opción:");
+
+
+                    int opcionManager = teclado.nextInt();
+                    switch (opcionManager) {
+                        case 1:
+                            break;
+                        case 2:
+                        break;
+                case 8:
                     System.out.println("Saliendo del sistema. ¡Hasta luego!");
                     break;
             }
+                default:
+                    System.out.println("Opción no válida. Intente de nuevo.");
+                    break;
+            }
         }
-        teclado.close();
     }
 }
