@@ -1,17 +1,17 @@
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Manager {
     private Controlador controlador;
+    // Opciones del Main en Operaciones del Manager
 
+    // Constructor
     public Manager(Controlador controlador) {
         this.controlador = controlador;
     }
 
+    // 1. Encontrar personal médico disponible
     public Medico asignarMedicoDisponible(String tipo, LocalDate fecha, LocalTime hora) {
         for (Medico m : controlador.getMedicos()) {
             if (m.getClass().getSimpleName().equalsIgnoreCase(tipo) && controlador.disponible(m, fecha, hora)) {
@@ -20,20 +20,38 @@ public class Manager {
         }
         return null;
     }
+    
+    // 2. Reagendar citas con conflictos
+    public ArrayList<String> calcularNominaPorDepartamento() {
+        ArrayList<String> resultado = new ArrayList<>();
+        ArrayList<Medico> medicos = controlador.getMedicos();
+        ArrayList<String> departamentos = new ArrayList<>();
 
-    public Map<String, Double> calcularNominaPorDepartamento() {
-        Map<String, Double> nomina = new HashMap<>();
-        for (Medico m : controlador.getMedicos()) {
-            double salario = m.calcularSalario(0); // Puedes pedir datos adicionales según tipo
-            nomina.put(m.getDepartamento(),
-                nomina.getOrDefault(m.getDepartamento(), 0.0) + salario);
+        // Obtener lista única de departamentos
+        for (Medico m : medicos) {
+            String depto = m.getDepartamento();
+            if (!departamentos.contains(depto)) {
+                departamentos.add(depto);
+            }
         }
-        return nomina;
+
+        // Calcular nómina por departamento
+        for (String depto : departamentos) {
+            double total = 0.0;
+            for (Medico m : medicos) {
+                if (m.getDepartamento().equals(depto)) {
+                    total += m.calcularSalario(0);
+                }
+            }
+            resultado.add("Departamento: " + depto + " - Total Nómina: " + total);
+        }
+
+        return resultado;
     }
 
-    public List<Cita> detectarConflictos() {
-        List<Cita> conflictos = new ArrayList<>();
-        List<Cita> citas = controlador.getCitas();
+    public ArrayList<Cita> detectarConflictos() {
+        ArrayList<Cita> conflictos = new ArrayList<>();
+        ArrayList<Cita> citas = controlador.getCitas();
         for (int i = 0; i < citas.size(); i++) {
             for (int j = i+1; j < citas.size(); j++) {
                 if (citas.get(i).getMedico().equals(citas.get(j).getMedico()) &&
@@ -50,20 +68,27 @@ public class Manager {
     }
 
     public void resolverConflictos() {
-        List<Cita> conflictos = detectarConflictos();
+        ArrayList<Cita> conflictos = detectarConflictos();
         for (Cita c : conflictos) {
             controlador.reagendarCita(c.getId());
         }
     }
 
-    public Map<Medico, Integer> analizarUtilizacionPersonal() {
-        Map<Medico, Integer> conteo = new HashMap<>();
-        for (Cita c : controlador.getCitas()) {
-            if (!conteo.containsKey(c.getMedico()))
-                conteo.put(c.getMedico(), 0);
-            conteo.put(c.getMedico(), conteo.get(c.getMedico()) + 1);
+    public ArrayList<String> analizarUtilizacionPersonal() {
+        ArrayList<Medico> medicos = controlador.getMedicos();
+        ArrayList<Cita> citas = controlador.getCitas();
+        ArrayList<String> resultado = new ArrayList<>();
+
+        for (Medico m : medicos) {
+            int contador = 0;
+            for (Cita c : citas) {
+                if (c.getMedico().equals(m)) {
+                    contador++;
+                }
+            }
+            resultado.add("Medico: " + m.getNombre() + " - Citas: " + contador);
         }
-        return conteo;
+        return resultado;
     }
 
     public Medico mostrarPersonal() {
@@ -83,21 +108,15 @@ public class Manager {
     }
 
     public String mostrarNominaTotalPorDepartamento() {
-        Map<String, Double> nomina = calcularNominaPorDepartamento();
-        for (String depto : nomina.keySet()) {
-            return "Departamento: " + depto + " - Total Nómina: " + nomina.get(depto);
+        ArrayList<String> nomina = calcularNominaPorDepartamento();
+        if (nomina.isEmpty()) {
+            return "No hay datos de nómina.";
         }
-        return "No hay datos de nómina.";
-    }
-
-    public void mostrarHistorialReagendamientos() {
-        Map<Integer, ArrayList<String>> historial = controlador.obtenerHistorialReagendamientos();
-        for (Map.Entry<Integer, ArrayList<String>> entry : historial.entrySet()) {
-            System.out.println("Cita ID: " + entry.getKey());
-            for (String evento : entry.getValue()) {
-                System.out.println("  " + evento);
-            }
+        StringBuilder sb = new StringBuilder();
+        for (String deptoNomina : nomina) {
+            sb.append(deptoNomina).append("\n");
         }
+        return sb.toString().trim();
     }
 }
 

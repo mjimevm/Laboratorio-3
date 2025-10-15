@@ -1,7 +1,7 @@
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -10,6 +10,25 @@ public class Main {
         Controlador controlador = new Controlador();
         Scanner teclado = new Scanner(System.in);
         int opcion = 0;
+        ArrayList<String> departamentos = new ArrayList<>();
+        departamentos.add("Cardiologia");
+        departamentos.add("Neurologia");
+        departamentos.add("Pediatria");
+        departamentos.add("Oncologia");
+        departamentos.add("Urgencias");
+        departamentos.add("Farmacia");
+        departamentos.add("Radiologia");
+        departamentos.add("Enfermeria");
+        departamentos.add("Medicina General");
+        departamentos.add("Cirugia");
+        departamentos.add("Ginecologia");
+        departamentos.add("Dermatologia");
+        departamentos.add("Psiquiatria");
+        departamentos.add("Oftalmologia");
+        departamentos.add("Otorrinolaringologia");
+        departamentos.add("Traumatologia");
+        departamentos.add("Urologia");
+        departamentos.add("Endocrinologia");
 
         while (opcion != 8) {
             System.out.println("\n--- Menú Principal ---");
@@ -37,7 +56,19 @@ public class Main {
                         System.out.print("Ingrese el nombre del médico: ");
                         String nombre = teclado.next();
                         System.out.print("Ingrese el departamento del médico: ");
-                        String departamento = teclado.next();
+                        for (String depto : departamentos) {
+                            System.out.println("- " + depto);
+                        }
+                        System.out.println("Seleccione un departamento de la lista anterior.");
+                        String d = teclado.next();
+                        ArrayList<String> departamentosLower = new ArrayList<>();
+                        for (String depto : departamentos) {
+                            departamentosLower.add(depto.toLowerCase());
+                        }
+                        while (!departamentosLower.contains(d.trim().toLowerCase())) {
+                            System.out.println("Departamento no válido. Seleccione un departamento de la lista.");
+                            d = teclado.next();
+                        }
                         System.out.print("Ingrese los años de experiencia del médico: ");
                         int experiencia = teclado.nextInt();
                         System.out.print("Ingrese el salario base del médico: ");
@@ -53,21 +84,21 @@ public class Main {
                                 int capacidadPacientesPorDia = teclado.nextInt();
                                 System.out.print("Ingrese la tarifa por consulta: ");
                                 double tarifa = teclado.nextDouble();
-                                medico = new DoctorGeneral(id, nombre, departamento, experiencia, salarioBase, especializacion, capacidadPacientesPorDia, tarifa);
+                                medico = new DoctorGeneral(id, nombre, d, experiencia, salarioBase, especializacion, capacidadPacientesPorDia, tarifa);
                                 break;
                             case "enfermero":
                                 System.out.print("Ingrese la especialidad del enfermero: ");
                                 String tipo = teclado.next();
                                 System.out.print("Ingrese la certificacion del enfermero: ");
                                 String certificacion = teclado.next();
-                                medico = new Enfermero(id, nombre, departamento, experiencia, salarioBase, tipo, certificacion);
+                                medico = new Enfermero(id, nombre, d, experiencia, salarioBase, tipo, certificacion);
                                 break;
                             case "radiólogo":
                                 System.out.print("Ingrese el tipo de radiólogo: ");
                                 String tipo1 = teclado.next();
                                 System.out.print("Ingrese la tarifa del radiólogo: ");
                                 double tarifa1 = teclado.nextDouble();
-                                medico = new Radiologo(id, nombre, departamento, experiencia, salarioBase, tipo1, tarifa1);
+                                medico = new Radiologo(id, nombre, d, experiencia, salarioBase, tipo1, tarifa1);
                                 break;
 
                             case "farmaceutico":
@@ -75,7 +106,7 @@ public class Main {
                                 String licencia = teclado.next();
                                 System.out.print("Ingrese el número de prescripciones por día: ");
                                 int preescripcionesPorDia = teclado.nextInt();
-                                medico = new Farmaceutico(id, nombre, departamento, experiencia, salarioBase, licencia, preescripcionesPorDia);
+                                medico = new Farmaceutico(id, nombre, d, experiencia, salarioBase, licencia, preescripcionesPorDia);
                                 break;
                             default:
                                 System.out.println("Tipo de médico no válido. Intente de nuevo.");
@@ -125,8 +156,6 @@ public class Main {
                     break;
 
                 case 4:
-                    LocalDateTime ahora = LocalDateTime.now();
-                    DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     if (controlador.getMedicos().isEmpty()) {
                         System.out.println("Primero debes agregar médicos.");
                         break;
@@ -202,10 +231,7 @@ public class Main {
                     boolean resultado = controlador.reagendarCita(idCitaCambiar);
                     if (resultado) {
                         System.out.println("Cita reagendada exitosamente.");
-                        // historial
-                        for (String evento : controlador.obtenerHistorialReagendamientos().get(idCitaCambiar)) {
-                            System.out.println(evento);
-                        }
+                        System.out.println(controlador.obtenerHistorialReagendamientos().get(idCitaCambiar));
                     } else {
                         System.out.println("No se pudo reagendar la cita (no existe o sin disponibilidad).");
                     }
@@ -274,10 +300,12 @@ public class Main {
                             break;
                         case 8:
                         // Historial de Reagendamientos
-                        for (int id : controlador.obtenerHistorialReagendamientos().keySet()) {
-                            System.out.println("Cita ID: " + id);
-                            for (String evento : controlador.obtenerHistorialReagendamientos().get(id)) {
-                                System.out.println("  " + evento);
+                        ArrayList<String> historial = controlador.obtenerHistorialReagendamientos();
+                        if (historial.isEmpty()) {
+                            System.out.println("No hay eventos de reagendamiento.");
+                        } else {
+                            for (String evento : historial) {
+                                System.out.println(evento);
                             }
                         }
                             break;

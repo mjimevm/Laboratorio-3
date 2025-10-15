@@ -1,8 +1,6 @@
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Controlador {
     private ArrayList<Medico> medicos = new ArrayList<>();
@@ -26,11 +24,11 @@ public class Controlador {
         return resultado;
     }
 
-    public Map<Integer, ArrayList<String>> obtenerHistorialReagendamientos() {
-        Map<Integer, ArrayList<String>> historial = new HashMap<>();
+    public ArrayList<String> obtenerHistorialReagendamientos() {
+        ArrayList<String> historial = new ArrayList<>();
         for (Cita c : citas) {
             if (c.getHistorial().size() > 1) {
-                historial.put(c.getId(), new ArrayList<>(c.getHistorial()));
+                historial.add("Cita ID: " + c.getId() + " -> " + c.getHistorial().toString());
             }
         }
         return historial;
