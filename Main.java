@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Bienvenido al sistema de gestión de médicos.");
         Controlador controlador = new Controlador();
+        Manager manager = new Manager(controlador);
         Scanner teclado = new Scanner(System.in);
         int opcion = 0;
         ArrayList<String> departamentos = new ArrayList<>();
@@ -72,7 +73,7 @@ public class Main {
                         System.out.print("Ingrese los años de experiencia del médico: ");
                         int experiencia = teclado.nextInt();
                         System.out.print("Ingrese el salario base del médico: ");
-                        int salarioBase = teclado.nextInt();
+                        double salarioBase = teclado.nextDouble();
                         System.out.print("Ingrese el tipo de médico (General, enfermero, radiologo, farmaceutico): ");
                         String tipoMedico = teclado.next();
                         Medico medico;
@@ -127,9 +128,7 @@ public class Main {
                         System.out.println("No hay médicos registrados.");
                         break;
                     }
-                    for (Medico m : controlador.getMedicos()) {
-                        System.out.println(m);
-                    }
+                    manager.mostrarPersonal();
                     break;
                 case 3:
                     System.out.println("Calcular salario por médico");
@@ -250,7 +249,6 @@ public class Main {
                     System.out.println("9. Volver al menú principal");
                     System.out.println("Seleccione una opción:");
                     int opcionManager = teclado.nextInt();
-                    Manager manager = new Manager(controlador);
 
                     switch (opcionManager) {
                         case 1:

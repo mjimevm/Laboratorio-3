@@ -3,7 +3,7 @@ public class Enfermero extends Medico {
     private String tipo;
     private String certificacion;
 
-    public Enfermero(int id, String nombre, String departamento, int experiencia, int salarioBase, String tipo, String certificacion) {
+    public Enfermero(int id, String nombre, String departamento, int experiencia, double salarioBase, String tipo, String certificacion) {
         super(id, nombre, departamento, experiencia, salarioBase);
         this.tipo = tipo;
         this.certificacion = certificacion;

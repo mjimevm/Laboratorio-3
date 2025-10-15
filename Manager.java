@@ -20,7 +20,7 @@ public class Manager {
         }
         return null;
     }
-    
+
     // 2. Reagendar citas con conflictos
     public ArrayList<String> calcularNominaPorDepartamento() {
         ArrayList<String> resultado = new ArrayList<>();
@@ -49,6 +49,7 @@ public class Manager {
         return resultado;
     }
 
+    // 3. Detectar y resolver conflictos de citas
     public ArrayList<Cita> detectarConflictos() {
         ArrayList<Cita> conflictos = new ArrayList<>();
         ArrayList<Cita> citas = controlador.getCitas();
@@ -67,6 +68,7 @@ public class Manager {
         return conflictos;
     }
 
+    //  4. Resolver conflictos de citas
     public void resolverConflictos() {
         ArrayList<Cita> conflictos = detectarConflictos();
         for (Cita c : conflictos) {
@@ -74,6 +76,7 @@ public class Manager {
         }
     }
 
+    // 5. Analizar utilización del personal médico
     public ArrayList<String> analizarUtilizacionPersonal() {
         ArrayList<Medico> medicos = controlador.getMedicos();
         ArrayList<Cita> citas = controlador.getCitas();

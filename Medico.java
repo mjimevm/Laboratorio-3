@@ -4,9 +4,9 @@ public abstract class Medico {
     protected String nombre;
     protected String departamento;
     protected int experiencia;
-    protected int salarioBase;
+    protected double salarioBase;
     // Constructor
-    public Medico (int id, String nombre, String departamento, int experiencia, int salarioBase) {
+    public Medico (int id, String nombre, String departamento, int experiencia, double salarioBase) {
         this.id = id;
         this.nombre = nombre;
         this.departamento = departamento;
@@ -26,7 +26,7 @@ public abstract class Medico {
     public String getDepartamento() {
         return departamento;
     }
-    public int getSalarioBase() {
+    public double getSalarioBase() {
         return salarioBase;
     }
     public abstract double calcularSalario(double a);

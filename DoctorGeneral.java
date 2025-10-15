@@ -4,7 +4,7 @@ public class DoctorGeneral extends Medico {
     private int pacientesPorDia;
     private double tarifa;
 
-    public DoctorGeneral(int id, String nombre, String departamento, int experiencia, int salarioBase, String especializacion, int pacientesPorDia, double tarifa) {
+    public DoctorGeneral(int id, String nombre, String departamento, int experiencia, double salarioBase, String especializacion, int pacientesPorDia, double tarifa) {
         super(id, nombre, departamento, experiencia, salarioBase);
         this.especializacion = especializacion;
         this.pacientesPorDia = pacientesPorDia;
