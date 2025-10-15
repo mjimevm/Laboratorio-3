@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class Controlador {
         }
         return historial;
     }
-    public Medico buscarMedicoDisponible(Class tipo, String fecha, int hora) {
+    public Medico buscarMedicoDisponible(Class tipo, LocalDate fecha, LocalTime hora) {
         for (Medico m : medicos) {
             if (tipo.isInstance(m) && disponible(m, fecha, hora)) {
                 return m;
@@ -42,9 +44,9 @@ public class Controlador {
         return null;
     }
 
-    private boolean disponible(Medico m, String fecha, int hora) {
+    public boolean disponible(Medico m, LocalDate fecha, LocalTime hora) {
         for (Cita c : citas) {
-            if (c.getMedico().equals(m) && c.getFecha().equals(fecha) && c.getHora() == hora && !c.getEstado().equals("CANCELADA")) {
+            if (c.getMedico().equals(m) && c.getFecha().equals(fecha) && c.getHora().equals(hora) && !c.getEstado().equals("CANCELADA")) {
                 return false;
             }
         }
@@ -58,10 +60,10 @@ public class Controlador {
     public boolean reagendarCita(int idCita) {
         for (Cita c : citas) {
             if (c.getId() == idCita) {
-                String fecha = c.getFecha();
-                int hora = c.getHora();
+                LocalDate fecha = c.getFecha();
+                LocalTime hora = c.getHora();
                 Medico medico = c.getMedico();
-                for (int h = hora + 1; h < 24; h++) {
+                for (LocalTime h = hora.plusHours(1); h.isBefore(LocalTime.MAX); h = h.plusHours(1)) {
                     if (disponible(medico, fecha, h)) {
                         c.reagendar(fecha, h, medico);
                         return true;
@@ -86,5 +88,8 @@ public class Controlador {
             }
         }
         return true;
+    }
+    public ArrayList<Cita> getCitas() {
+        return citas;
     }
 }

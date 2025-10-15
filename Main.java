@@ -1,5 +1,8 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-
 
 public class Main {
     public static void main(String[] args) {
@@ -79,12 +82,11 @@ public class Main {
                                 continue;
                         }
                         controlador.contratarMedico(medico);
-                        System.out.print("¿Desea agregar otro médico? (Sí/No): ");
+                        System.out.print("¿Desea agregar otro médico? (si/no): ");
                         respuesta = teclado.next();
-                        while (!respuesta.equalsIgnoreCase("Sí") && !respuesta.equalsIgnoreCase("No")) {
-                            System.out.println("Respuesta no válida. Saliendo al menú principal.");
+                        while (!respuesta.equalsIgnoreCase("si") && !respuesta.equalsIgnoreCase("no")) {
+                            System.out.println("Respuesta no válida. Inténtelo de nuevo (si/no): ");
                             respuesta = teclado.next();
-                            break;
                         }
                     }
                     break;
@@ -123,6 +125,8 @@ public class Main {
                     break;
 
                 case 4:
+                    LocalDateTime ahora = LocalDateTime.now();
+                    DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     if (controlador.getMedicos().isEmpty()) {
                         System.out.println("Primero debes agregar médicos.");
                         break;
@@ -145,9 +149,23 @@ public class Main {
                         break;
                     }
                     System.out.print("Fecha (YYYY-MM-DD): ");
-                    String fecha = teclado.next();
-                    System.out.print("Hora (0-23): ");
-                    int hora = teclado.nextInt();
+                    String fechaStr = teclado.next();
+                    LocalDate fecha = null;
+                    try {
+                        fecha = LocalDate.parse(fechaStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    } catch (Exception e) {
+                        System.out.println("Formato de fecha no válido.");
+                        break;
+                    }
+                    System.out.print("Hora (HH:mm): ");
+                    String horaStr = teclado.next();
+                    LocalTime hora;
+                    try {
+                        hora = LocalTime.parse(horaStr, DateTimeFormatter.ofPattern("HH:mm"));
+                    } catch (Exception e) {
+                        System.out.println("Formato de hora no válido.");
+                        break;
+                    }
                     System.out.print("Tipo de cita: ");
                     String tipoCita = teclado.next();
 
@@ -163,9 +181,9 @@ public class Main {
                     break;
 
                 case 5:
-                    System.out.print("¿Desea filtrar por estado? (Sí/No): ");
+                    System.out.print("¿Desea filtrar por estado? (si/no): ");
                     String filtrar = teclado.next();
-                    if (filtrar.equalsIgnoreCase("Sí")) {
+                    if (filtrar.equalsIgnoreCase("si")) {
                         System.out.print("Ingrese el estado a filtrar: ");
                         String estadoFiltro = teclado.next();
                         for (Cita c : controlador.listarCitasPorEstado(estadoFiltro)) {
@@ -206,25 +224,65 @@ public class Main {
                     System.out.println("9. Volver al menú principal");
                     System.out.println("Seleccione una opción:");
                     int opcionManager = teclado.nextInt();
+                    Manager manager = new Manager(controlador);
 
                     switch (opcionManager) {
                         case 1:
+                        // Encontrar personal Disponible por tipo y horario
+                            System.out.print("Tipo de médico (General, enfermero, radiólogo, farmacéutico): ");
+                            String tipoMed = teclado.next();
+                            System.out.print("Fecha (YYYY-MM-DD): ");
+                            LocalDate fechaDisp = LocalDate.parse(teclado.next());
+                            System.out.print("Hora (HH:mm): ");
+                            LocalTime horaDisp = LocalTime.parse(teclado.next());
+                            for (Medico m : controlador.getMedicos()) {
+                                if (m.getClass().getSimpleName().equalsIgnoreCase(tipoMed)) {
+                                    Medico disponible = controlador.buscarMedicoDisponible(m.getClass(), fechaDisp, horaDisp);
+                                    if (disponible != null) {
+                                        System.out.println("Médico disponible encontrado: " + disponible);
+                                    } else {
+                                        System.out.println("No hay médicos disponibles de ese tipo en la fecha y hora indicadas.");
+                                    }
+                                    break;
+                                }
+                            }
                             break;
                         case 2:
-                        break;
+                        // Reportes de Nómina por departamento
+                            System.out.println("Nómina por departamento:");
+                            manager.mostrarNominaTotalPorDepartamento();
+                            break;
                         case 3:
+                        // Gestión de Conflictos de Horarios
+                            manager.detectarConflictos();
                             break;
                         case 4:
+                        // Análisis de Utilización
+                            manager.analizarUtilizacionPersonal();
                             break;
                         case 5:
+                        // Reportes de personal
+                            manager.mostrarPersonal();
                             break;
                         case 6:
+                        // Reporte de Citas
+                            manager.mostrarCitasPorEstadoYMedico("", null);
                             break;
                         case 7:
+                        // Análisis financiero
+                            manager.mostrarNominaTotalPorDepartamento();
                             break;
                         case 8:
+                        // Historial de Reagendamientos
+                        for (int id : controlador.obtenerHistorialReagendamientos().keySet()) {
+                            System.out.println("Cita ID: " + id);
+                            for (String evento : controlador.obtenerHistorialReagendamientos().get(id)) {
+                                System.out.println("  " + evento);
+                            }
+                        }
                             break;
                         case 9:
+                            System.out.println("Volviendo al menú principal.");
                             break;
                         default:
                             System.out.println("Opción no válida. Intente de nuevo.");
@@ -234,7 +292,7 @@ public class Main {
                 case 8:
                     System.out.println("Saliendo del sistema. ¡Hasta luego!");
                     break;
-                    
+
                 default:
                     System.out.println("Opción no válida. Intente de nuevo.");
                     break;

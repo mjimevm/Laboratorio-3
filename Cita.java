@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,13 +7,13 @@ public class Cita {
     private int id;
     private String nombrePaciente;
     private Medico medico;
-    private String fecha;
-    private int hora;
+    private LocalDate fecha;
+    private LocalTime hora;
     private String tipo;
     private String estado;
     private List<String> historial = new ArrayList<>();
 
-    public Cita(int id, String nombre, Medico m, String fecha, int hora, String tipo, String estado) {
+    public Cita(int id, String nombre, Medico m, LocalDate fecha, LocalTime hora, String tipo, String estado) {
         this.id = id;
         this.nombrePaciente = nombre;
         this.medico = m;
@@ -33,11 +35,11 @@ public class Cita {
         return medico; 
     }
 
-    public String getFecha() { 
+    public LocalDate getFecha() { 
         return fecha; 
     }
 
-    public int getHora() { 
+    public LocalTime getHora() { 
         return hora; 
     }
 
@@ -58,7 +60,7 @@ public class Cita {
         historial.add("Cambio de estado a: " + nuevoEstado);
     }
 
-    public String reagendar(String nuevaFecha, int nuevaHora, Medico nuevoMedico) {
+    public String reagendar(LocalDate nuevaFecha, LocalTime nuevaHora, Medico nuevoMedico) {
         historial.add("Reagendada de " + fecha + " " + hora + ":00 a " + nuevaFecha + " " + nuevaHora + ":00 con " + nuevoMedico.getNombre());
         this.fecha = nuevaFecha;
         this.hora = nuevaHora;
