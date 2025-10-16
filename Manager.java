@@ -93,14 +93,7 @@ public class Manager {
         }
         return resultado;
     }
-
-    public Medico mostrarPersonal() {
-        for (Medico m : controlador.getMedicos()) {
-            return m;
-        }
-        return null;
-    }
-
+    
     public Cita mostrarCitasPorEstadoYMedico(String estado, Medico medico) {
         for (Cita c : controlador.listarCitasPorEstado(estado)) {
             if (c.getMedico().equals(medico)) {

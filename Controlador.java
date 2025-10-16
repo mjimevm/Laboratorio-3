@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Controlador {
     private ArrayList<Medico> medicos = new ArrayList<>();
     private ArrayList<Cita> citas = new ArrayList<>();
+    private ArrayList<String> historial = new ArrayList<>();
 
     public void contratarMedico(Medico m) {
         medicos.add(m);
@@ -24,10 +25,10 @@ public class Controlador {
         return resultado;
     }
 
-    public ArrayList<String> obtenerHistorialReagendamientos() {
+    public ArrayList<String> obtenerHistorialReagendamientos(int idCita) {
         ArrayList<String> historial = new ArrayList<>();
         for (Cita c : citas) {
-            if (c.getHistorial().size() > 1) {
+            if (c.getId() == idCita && c.getHistorial().size() > 0) {
                 historial.add("Cita ID: " + c.getId() + " -> " + c.getHistorial().toString());
             }
         }
@@ -55,6 +56,7 @@ public class Controlador {
         return medicos;
     }
 
+
     public boolean reagendarCita(int idCita) {
         for (Cita c : citas) {
             if (c.getId() == idCita) {
@@ -80,12 +82,25 @@ public class Controlador {
     }
 
     public boolean verificarExistencia(int id) {
+        for (Cita c : citas) {
+            if (c.getId() == id) {
+                return false;
+            }
+        }
         for (Medico m : medicos) {
             if (m.getId() == id) {
                 return false;
             }
         }
         return true;
+    }
+
+    public ArrayList<String> getHistorial() {
+        return historial;
+    }
+    public String agregarEventoHistorial(Cita cita) {
+        historial.add("Cita ID: " + cita.getId() + " - " + cita.getEstado());
+        return "Evento agregado al historial.";
     }
     public ArrayList<Cita> getCitas() {
         return citas;

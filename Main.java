@@ -88,11 +88,15 @@ public class Main {
                                 medico = new DoctorGeneral(id, nombre, d, experiencia, salarioBase, especializacion, capacidadPacientesPorDia, tarifa);
                                 break;
                             case "enfermero":
-                                System.out.print("Ingrese la especialidad del enfermero: ");
-                                String tipo = teclado.next();
+                                System.out.print("Ingrese el horario del enfermero (diurno/nocturno): ");
+                                String horario = teclado.next().toLowerCase().trim();
+                                while (horario.equals("diurno") == false && horario.equals("nocturno") == false) {
+                                    System.out.println("Horario no válido. Ingrese 'diurno' o 'nocturno': ");
+                                    horario = teclado.next().toLowerCase().trim();
+                                }
                                 System.out.print("Ingrese la certificacion del enfermero: ");
                                 String certificacion = teclado.next();
-                                medico = new Enfermero(id, nombre, d, experiencia, salarioBase, tipo, certificacion);
+                                medico = new Enfermero(id, nombre, d, experiencia, salarioBase, horario, certificacion);
                                 break;
                             case "radiólogo":
                                 System.out.print("Ingrese el tipo de radiólogo: ");
@@ -128,7 +132,9 @@ public class Main {
                         System.out.println("No hay médicos registrados.");
                         break;
                     }
-                    manager.mostrarPersonal();
+                    for (Medico m : controlador.getMedicos()) {
+                        System.out.println(m);
+                    }
                     break;
                 case 3:
                     System.out.println("Calcular salario por médico");
@@ -161,6 +167,10 @@ public class Main {
                     }
                     System.out.print("ID de cita: ");
                     int idCita = teclado.nextInt();
+                    while (controlador.verificarExistencia(idCita) == false) {
+                        System.out.println("El ID de cita ya existe. Ingrese un ID diferente.");
+                        idCita = teclado.nextInt();
+                    }
                     System.out.print("Nombre del paciente: ");
                     String paciente = teclado.next();
                     System.out.print("ID del médico: ");
@@ -230,7 +240,7 @@ public class Main {
                     boolean resultado = controlador.reagendarCita(idCitaCambiar);
                     if (resultado) {
                         System.out.println("Cita reagendada exitosamente.");
-                        System.out.println(controlador.obtenerHistorialReagendamientos().get(idCitaCambiar));
+                        System.out.println(controlador.obtenerHistorialReagendamientos(idCitaCambiar));
                     } else {
                         System.out.println("No se pudo reagendar la cita (no existe o sin disponibilidad).");
                     }
@@ -286,11 +296,15 @@ public class Main {
                             break;
                         case 5:
                         // Reportes de personal
-                            manager.mostrarPersonal();
+                            for (Medico m : controlador.getMedicos()) {
+                                System.out.println("Cantidad de citas para " + m.getNombre() + ": " + controlador.getCitas().stream().filter(c -> c.getMedico().equals(m)).count());
+                            }
                             break;
                         case 6:
                         // Reporte de Citas
-                            manager.mostrarCitasPorEstadoYMedico("", null);
+                        for (Medico m : controlador.getMedicos()) {
+                            manager.mostrarCitasPorEstadoYMedico("", m);
+                        }
                             break;
                         case 7:
                         // Análisis financiero
@@ -298,14 +312,6 @@ public class Main {
                             break;
                         case 8:
                         // Historial de Reagendamientos
-                        ArrayList<String> historial = controlador.obtenerHistorialReagendamientos();
-                        if (historial.isEmpty()) {
-                            System.out.println("No hay eventos de reagendamiento.");
-                        } else {
-                            for (String evento : historial) {
-                                System.out.println(evento);
-                            }
-                        }
                             break;
                         case 9:
                             System.out.println("Volviendo al menú principal.");
