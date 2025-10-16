@@ -1,18 +1,18 @@
 public class Farmaceutico extends Medico {
 
     private String licencia;
-    private int preescripcionesPorDia;
+    private int prescripcionesPorDia;
 
-    public Farmaceutico(int id, String nombre, String departamento, int experiencia, double salarioBase, String licencia, int preescripcionesPorDia) {
+    public Farmaceutico(int id, String nombre, String departamento, int experiencia, double salarioBase, String licencia, int prescripcionesPorDia) {
         super(id, nombre, departamento, experiencia, salarioBase);
         this.licencia = licencia;
-        this.preescripcionesPorDia = preescripcionesPorDia;
+        this.prescripcionesPorDia = prescripcionesPorDia;
     }
     public String getTipo(){
         return licencia;
     }
-    public int getPreescricpionesPorDia() {
-        return preescripcionesPorDia;
+    public int getPrescripcionesPorDia() {
+        return prescripcionesPorDia;
     }
     @Override
     public double calcularSalario(double comision) {

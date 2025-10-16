@@ -167,9 +167,11 @@ public class Main {
                     }
                     System.out.print("ID de cita: ");
                     int idCita = teclado.nextInt();
-                    while (controlador.verificarExistencia(idCita) == false) {
-                        System.out.println("El ID de cita ya existe. Ingrese un ID diferente.");
-                        idCita = teclado.nextInt();
+                    for (Cita c : controlador.getCitas()) {
+                        while (c.getId() == idCita) {
+                            System.out.println("El ID de cita ya existe. Ingrese un ID diferente.");
+                            idCita = teclado.nextInt();
+                        }
                     }
                     System.out.print("Nombre del paciente: ");
                     String paciente = teclado.next();
@@ -207,6 +209,34 @@ public class Main {
                     System.out.print("Tipo de cita: ");
                     String tipoCita = teclado.next();
 
+                    
+                    if (medicoElegido.getClass() == DoctorGeneral.class) {
+                        int citasEnFecha = 0;
+                        for (Cita c : controlador.getCitas()) {
+                            if (c.getMedico().equals(medicoElegido) && c.getFecha().equals(fecha) && !c.getEstado().equals("CANCELADA")) {
+                                citasEnFecha++;
+                            }
+                        }
+                        int capacidad = ((DoctorGeneral) medicoElegido).getPacientesPorDia();
+                        if (citasEnFecha >= capacidad) {
+                            System.out.println("El médico " + medicoElegido.getNombre() + " ya alcanzó su capacidad de " + capacidad + " pacientes para la fecha " + fecha + ". No se puede agendar la cita.");
+                            break;
+                        }
+                    }
+                    if (medicoElegido.getClass() == Farmaceutico.class) {
+                        int citasEnFecha = 0;
+                        for (Cita c : controlador.getCitas()) {
+                            if (c.getMedico().equals(medicoElegido) && c.getFecha().equals(fecha) && !c.getEstado().equals("CANCELADA")) {
+                                citasEnFecha++;
+                            }
+                        }
+                        int capacidad = ((Farmaceutico) medicoElegido).getPrescripcionesPorDia();
+                        if (citasEnFecha >= capacidad) {
+                            System.out.println("El farmacéutico " + medicoElegido.getNombre() + " ya alcanzó su capacidad de " + capacidad + " prescripciones para la fecha " + fecha + ". No se puede agendar la cita.");
+                            break;
+                        }
+                    }
+
                     Cita cita = new Cita(idCita, paciente, medicoElegido, fecha, hora, tipoCita, "PROGRAMADA");
                     controlador.agregarCita(cita);
                     System.out.println("¡Cita agendada!");
@@ -224,11 +254,15 @@ public class Main {
                     if (filtrar.equalsIgnoreCase("si")) {
                         System.out.print("Ingrese el estado a filtrar: ");
                         String estadoFiltro = teclado.next();
+                        while (!estadoFiltro.equalsIgnoreCase("PROGRAMADA") && !estadoFiltro.equalsIgnoreCase("COMPLETADA") && !estadoFiltro.equalsIgnoreCase("CANCELADA") && !estadoFiltro.equalsIgnoreCase("EN PROGRESO")) {
+                            System.out.println("Estado no válido. Ingrese 'PROGRAMADA', 'COMPLETADA', 'CANCELADA' o 'EN PROGRESO': ");
+                            estadoFiltro = teclado.next();
+                        }
                         for (Cita c : controlador.listarCitasPorEstado(estadoFiltro)) {
                             System.out.println(c);
                         }
                     } else {
-                        for (Cita c : controlador.listarCitasPorEstado("")) {
+                        for (Cita c : controlador.getCitas()) {
                             System.out.println(c);
                         }
                     }
@@ -283,35 +317,67 @@ public class Main {
                             break;
                         case 2:
                         // Reportes de Nómina por departamento
-                            System.out.println("Nómina por departamento:");
-                            manager.mostrarNominaTotalPorDepartamento();
+                            System.out.println("\nNómina por departamento:");
+                            manager.mostrarNominaTotalPorDepartamento(departamentos);
                             break;
                         case 3:
                         // Gestión de Conflictos de Horarios
+                            System.out.println("\nGestión de conflictos de horarios: ");
                             manager.detectarConflictos();
                             break;
                         case 4:
                         // Análisis de Utilización
+                            System.out.println("\nAnálisis de utilización del personal médico:");
                             manager.analizarUtilizacionPersonal();
                             break;
                         case 5:
                         // Reportes de personal
+                            System.out.println("\nReporte de personal médico:");
                             for (Medico m : controlador.getMedicos()) {
                                 System.out.println("Cantidad de citas para " + m.getNombre() + ": " + controlador.getCitas().stream().filter(c -> c.getMedico().equals(m)).count());
                             }
                             break;
                         case 6:
                         // Reporte de Citas
-                        for (Medico m : controlador.getMedicos()) {
-                            manager.mostrarCitasPorEstadoYMedico("", m);
-                        }
+                            System.out.println("CITAS POR CATEGORIA:");
+                            System.out.println("PROGRAMADAS");
+                            for (Cita c : controlador.listarCitasPorEstado("PROGRAMADA")) {
+                                System.out.println(c);
+                            }
+                            System.out.println("COMPLETADAS");
+                            if (controlador.listarCitasPorEstado("COMPLETADAS").isEmpty()) {
+                                System.out.println("No hay citas completadas.");
+                            }
+                            for (Cita c : controlador.listarCitasPorEstado("COMPLETADA")) {
+                                System.out.println(c);
+                            }
+                            System.out.println("CANCELADAS");
+                            if (controlador.listarCitasPorEstado("CANCELADA").isEmpty()) {
+                                System.out.println("No hay citas canceladas.");
+                            }
+                            for (Cita c : controlador.listarCitasPorEstado("CANCELADA")) {
+                                System.out.println(c);
+                            }
+                            System.out.println("EN PROGRESO");
+                            for (Cita c: controlador.getCitas()) {
+                                controlador.citaEnProgreso(c);
+                            }
+                            if (controlador.listarCitasPorEstado("EN PROGRESO").isEmpty()) {
+                                System.out.println("No hay citas en progreso.");
+                            }
+                            for (Cita c : controlador.listarCitasPorEstado("EN PROGRESO")) {
+                                System.out.println(c);
+                            }
                             break;
+
                         case 7:
                         // Análisis financiero
-                            manager.mostrarNominaTotalPorDepartamento();
+                            System.out.println("\nAnálisis financiero:");
+                            manager.mostrarNominaTotalPorDepartamento(departamentos);
                             break;
                         case 8:
                         // Historial de Reagendamientos
+                            System.out.println("\nHistorial de Reagendamientos:");
                             break;
                         case 9:
                             System.out.println("Volviendo al menú principal.");

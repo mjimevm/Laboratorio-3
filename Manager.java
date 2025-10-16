@@ -22,10 +22,9 @@ public class Manager {
     }
 
     // 2. Reagendar citas con conflictos
-    public ArrayList<String> calcularNominaPorDepartamento() {
+    public ArrayList<String> calcularNominaPorDepartamento(ArrayList<String> departamentos) {
         ArrayList<String> resultado = new ArrayList<>();
         ArrayList<Medico> medicos = controlador.getMedicos();
-        ArrayList<String> departamentos = new ArrayList<>();
 
         // Obtener lista única de departamentos
         for (Medico m : medicos) {
@@ -103,8 +102,8 @@ public class Manager {
         return null;
     }
 
-    public String mostrarNominaTotalPorDepartamento() {
-        ArrayList<String> nomina = calcularNominaPorDepartamento();
+    public String mostrarNominaTotalPorDepartamento(ArrayList<String> departamentos) {
+        ArrayList<String> nomina = calcularNominaPorDepartamento(departamentos);
         if (nomina.isEmpty()) {
             return "No hay datos de nómina.";
         }

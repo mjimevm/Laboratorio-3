@@ -105,4 +105,18 @@ public class Controlador {
     public ArrayList<Cita> getCitas() {
         return citas;
     }
+    public void citaCompletada(Cita cita) {
+         cita.setEstado("COMPLETADA");
+         agregarEventoHistorial(cita);
+    }
+    public void citaCancelada(Cita cita) {
+        cita.setEstado("CANCELADA");
+        agregarEventoHistorial(cita);
+    }
+    public void citaEnProgreso(Cita cita) {
+        if (cita.getHora() == LocalTime.now() && cita.getFecha().isEqual(LocalDate.now())) {
+            cita.setEstado("EN PROGRESO");
+            agregarEventoHistorial(cita);
+        }
+    }
 }
