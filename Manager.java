@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -21,18 +22,11 @@ public class Manager {
         return null;
     }
 
-    // 2. Reagendar citas con conflictos
-    public ArrayList<String> calcularNominaPorDepartamento(ArrayList<String> departamentos) {
+    // 2. Reportes de nómina por departamento
+    public ArrayList<String> calcularNominaPorDepartamento() {
         ArrayList<String> resultado = new ArrayList<>();
         ArrayList<Medico> medicos = controlador.getMedicos();
-
-        // Obtener lista única de departamentos
-        for (Medico m : medicos) {
-            String depto = m.getDepartamento();
-            if (!departamentos.contains(depto)) {
-                departamentos.add(depto);
-            }
-        }
+        ArrayList<String> departamentos = controlador.getDepartamentos();
 
         // Calcular nómina por departamento
         for (String depto : departamentos) {
@@ -48,33 +42,18 @@ public class Manager {
         return resultado;
     }
 
-    // 3. Detectar y resolver conflictos de citas
-    public ArrayList<Cita> detectarConflictos() {
-        ArrayList<Cita> conflictos = new ArrayList<>();
+    // 3. Detectar conflictos (Se puede resolver mediante el reagendamiento de citas)
+    public String detectarConflictos() {
         ArrayList<Cita> citas = controlador.getCitas();
-        for (int i = 0; i < citas.size(); i++) {
-            for (int j = i+1; j < citas.size(); j++) {
-                if (citas.get(i).getMedico().equals(citas.get(j).getMedico()) &&
-                        citas.get(i).getFecha().equals(citas.get(j).getFecha()) &&
-                        citas.get(i).getHora() == citas.get(j).getHora() &&
-                        !citas.get(i).getEstado().equals("CANCELADA") &&
-                        !citas.get(j).getEstado().equals("CANCELADA")) {
-                    conflictos.add(citas.get(i));
-                    conflictos.add(citas.get(j));
+        for (Cita cita : citas) {
+            for (Cita otraCita : citas) {
+                if (!cita.equals(otraCita) || cita.getMedico().equals(otraCita.getMedico()) || cita.getFecha().equals(otraCita.getFecha()) || cita.getHora().equals(otraCita.getHora())) {
+                    return "Conflicto detectado entre las citas ID: " + cita.getId() + " y ID: " + otraCita.getId() + ". Se recomienda reagendar una de las citas.";
                 }
             }
         }
-        return conflictos;
+        return "No hay conflictos encontrados";
     }
-
-    //  4. Resolver conflictos de citas
-    public void resolverConflictos() {
-        ArrayList<Cita> conflictos = detectarConflictos();
-        for (Cita c : conflictos) {
-            controlador.reagendarCita(c.getId());
-        }
-    }
-
     // 5. Analizar utilización del personal médico
     public ArrayList<String> analizarUtilizacionPersonal() {
         ArrayList<Medico> medicos = controlador.getMedicos();
@@ -93,6 +72,7 @@ public class Manager {
         return resultado;
     }
     
+    // 6. Mostrar citas por estado y médico
     public Cita mostrarCitasPorEstadoYMedico(String estado, Medico medico) {
         for (Cita c : controlador.listarCitasPorEstado(estado)) {
             if (c.getMedico().equals(medico)) {
@@ -102,16 +82,13 @@ public class Manager {
         return null;
     }
 
-    public String mostrarNominaTotalPorDepartamento(ArrayList<String> departamentos) {
-        ArrayList<String> nomina = calcularNominaPorDepartamento(departamentos);
-        if (nomina.isEmpty()) {
-            return "No hay datos de nómina.";
+    // 7. Mostrar nómina total por departamento
+    public void mostrarNominaTotalPorDepartamento() {
+        ArrayList<String> nomina = calcularNominaPorDepartamento();
+        for (String n : nomina) {
+            System.out.println(n);
         }
-        StringBuilder sb = new StringBuilder();
-        for (String deptoNomina : nomina) {
-            sb.append(deptoNomina).append("\n");
-        }
-        return sb.toString().trim();
     }
+
 }
 

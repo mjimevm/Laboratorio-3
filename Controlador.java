@@ -6,6 +6,7 @@ public class Controlador {
     private ArrayList<Medico> medicos = new ArrayList<>();
     private ArrayList<Cita> citas = new ArrayList<>();
     private ArrayList<String> historial = new ArrayList<>();
+    private ArrayList<String> departamentos = new ArrayList<>();
 
     public void contratarMedico(Medico m) {
         medicos.add(m);
@@ -23,7 +24,24 @@ public class Controlador {
             }
         }
         return resultado;
+    }    
+    public ArrayList<String> getDepartamentos() {
+        return departamentos;
     }
+    public void setDepartamentos(ArrayList<String> departamentos) {
+        this.departamentos = departamentos;
+    }
+    public ArrayList<String> listarDepartamentos() {
+        ArrayList<String> resultado = new ArrayList<>();
+        for (Medico m : medicos) {
+            String dep = m.getDepartamento();
+            if (dep != null && !resultado.contains(dep)) {
+                resultado.add(dep);
+            }
+        }
+        return resultado;
+    }
+
 
     public ArrayList<String> obtenerHistorialReagendamientos(int idCita) {
         ArrayList<String> historial = new ArrayList<>();
@@ -45,7 +63,13 @@ public class Controlador {
 
     public boolean disponible(Medico m, LocalDate fecha, LocalTime hora) {
         for (Cita c : citas) {
-            if (c.getMedico().equals(m) && c.getFecha().equals(fecha) && c.getHora().equals(hora) && !c.getEstado().equals("CANCELADA")) {
+            if (!c.getMedico().equals(m)) {
+                return false;
+            } else if (!c.getFecha().equals(fecha)) {
+                return false;
+            } else if (!c.getHora().equals(hora)) {
+                return false;
+            } else if (c.getEstado().equals("CANCELADA")) {
                 return false;
             }
         }

@@ -15,33 +15,26 @@ public class Main {
         departamentos.add("Cardiologia");
         departamentos.add("Neurologia");
         departamentos.add("Pediatria");
-        departamentos.add("Oncologia");
         departamentos.add("Urgencias");
         departamentos.add("Farmacia");
         departamentos.add("Radiologia");
         departamentos.add("Enfermeria");
         departamentos.add("Medicina General");
         departamentos.add("Cirugia");
-        departamentos.add("Ginecologia");
         departamentos.add("Dermatologia");
-        departamentos.add("Psiquiatria");
-        departamentos.add("Oftalmologia");
-        departamentos.add("Otorrinolaringologia");
-        departamentos.add("Traumatologia");
-        departamentos.add("Urologia");
-        departamentos.add("Endocrinologia");
 
-        while (opcion != 8) {
+        controlador.setDepartamentos(departamentos);
+
+        while (opcion != 7) {
             System.out.println("\n--- Menú Principal ---");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Agregar Médico");
             System.out.println("2. Mostrar Personal Médico");
             System.out.println("3. Calcular Salario");
             System.out.println("4. Agendar Cita");
-            System.out.println("5. Mostrar Citas");
-            System.out.println("6. Cambiar Cita");
-            System.out.println("7. Operaciones de manager");
-            System.out.println("8. Salir");
+            System.out.println("5. Cambiar Cita");
+            System.out.println("6. Operaciones de manager");
+            System.out.println("7. Salir");
             opcion = teclado.nextInt();
 
             switch (opcion) {
@@ -56,17 +49,14 @@ public class Main {
                         }
                         System.out.print("Ingrese el nombre del médico: ");
                         String nombre = teclado.next();
-                        System.out.print("Ingrese el departamento del médico: ");
+                        System.out.println("Ingrese el departamento del médico: ");
+                        System.out.println("\nDepartamentos en el hospital:");
                         for (String depto : departamentos) {
                             System.out.println("- " + depto);
                         }
                         System.out.println("Seleccione un departamento de la lista anterior.");
                         String d = teclado.next();
-                        ArrayList<String> departamentosLower = new ArrayList<>();
-                        for (String depto : departamentos) {
-                            departamentosLower.add(depto.toLowerCase());
-                        }
-                        while (!departamentosLower.contains(d.trim().toLowerCase())) {
+                        while (!departamentos.contains(d.trim())) {
                             System.out.println("Departamento no válido. Seleccione un departamento de la lista.");
                             d = teclado.next();
                         }
@@ -137,29 +127,52 @@ public class Main {
                     }
                     break;
                 case 3:
-                    System.out.println("Calcular salario por médico");
+                    System.out.println("\nCalcular salario por médico");
                     for (Medico m : controlador.getMedicos()) {
-                        System.out.println(m.getId() + ": " + m.getNombre());
+                        System.out.println("[ID: #" + m.getId() + "]: " + m.getNombre());
                     }
                     System.out.print("Ingrese el ID del médico para calcular su salario: ");
                     int identificador = teclado.nextInt();
-                    Medico medico = null;
                     for (Medico m : controlador.getMedicos()) {
                         if (m.getId() == identificador) {
-                            medico = m;
-                            break;
+                            if (m.getClass() == DoctorGeneral.class) {
+                                DoctorGeneral doc = (DoctorGeneral) m;
+                                System.out.print("Ingrese la cantidad de consultas realizadas este mes para " + m.getNombre() + ": ");
+                                int consultas = teclado.nextInt();
+                                double salario = doc.calcularSalario(consultas);
+                                System.out.println("El salario del médico " + m.getNombre() + " es: " + salario);
+                                break;
+                            }
+                            else if (m.getClass() == Enfermero.class) {
+                                Enfermero enf = (Enfermero) m;
+                                double bono = 0;
+                                if (enf.getHorario().equalsIgnoreCase("nocturno")) {
+                                    System.out.print("Ingrese el bono nocturno para " + m.getNombre() + ": ");
+                                    bono = teclado.nextDouble();
+                                }
+                                double salario = m.calcularSalario(bono);
+                                System.out.println("El salario del médico " + m.getNombre() + " es: " + salario);
+                                break;
+                            }
+                            else if (m.getClass() == Radiologo.class) {
+                                Radiologo rad = (Radiologo) m;
+                                System.out.println("Ingrese la cantidad de estudios realizados por " + m.getNombre() + ": ");
+                                int estudios = teclado.nextInt();
+                                double salario = rad.calcularSalario(estudios);
+                                System.out.println("El salario del médico " + m.getNombre() + " es: " + salario);
+                                break;
+                            }
+                            else if (m.getClass() == Farmaceutico.class) {
+                                Farmaceutico farm = (Farmaceutico) m;
+                                System.out.print("Ingrese el bono mensual por prescripciones para " + m.getNombre() + ": ");
+                                double bono = teclado.nextDouble();
+                                double salario = farm.calcularSalario(bono);
+                                System.out.println("El salario del médico " + m.getNombre() + " es: " + salario);
+                                break;
+                            }
                         }
-                    }
-                    if (medico != null) {
-                        double var = 0;
-                        double salario = medico.calcularSalario(var);
-                        System.out.println("El salario del médico " + medico.getNombre() + " es: " + salario);
-                    } else {
-                        System.out.println("Médico no encontrado.");
-                    }
-
+                    } 
                     break;
-
                 case 4:
                     if (controlador.getMedicos().isEmpty()) {
                         System.out.println("Primero debes agregar médicos.");
@@ -209,7 +222,6 @@ public class Main {
                     System.out.print("Tipo de cita: ");
                     String tipoCita = teclado.next();
 
-                    
                     if (medicoElegido.getClass() == DoctorGeneral.class) {
                         int citasEnFecha = 0;
                         for (Cita c : controlador.getCitas()) {
@@ -236,39 +248,24 @@ public class Main {
                             break;
                         }
                     }
+                    String estado;
+                    if (fecha.isBefore(LocalDate.now()) && hora.isBefore(LocalTime.now())) {
+                        estado = "COMPLETADA";
+                    } else if (hora.equals(LocalTime.now()) && fecha.isEqual(LocalDate.now())) {
+                        estado = "EN PROGRESO";
+                    } else if (fecha.isBefore(LocalDate.now()) && hora.isAfter(LocalTime.now())) {
+                        estado = "COMPLETADA";
+                    } else {
+                        estado = "PROGRAMADA";
+                    }
 
-                    Cita cita = new Cita(idCita, paciente, medicoElegido, fecha, hora, tipoCita, "PROGRAMADA");
+                    Cita cita = new Cita(idCita, paciente, medicoElegido, fecha, hora, tipoCita, estado);
                     controlador.agregarCita(cita);
                     System.out.println("¡Cita agendada!");
-
-                    System.out.println("\nCitas programadas:");
-                    for (Cita c : controlador.listarCitasPorEstado("PROGRAMADA")) {
-                        System.out.println(c);
-                    }
 
                     break;
 
                 case 5:
-                    System.out.print("¿Desea filtrar por estado? (si/no): ");
-                    String filtrar = teclado.next();
-                    if (filtrar.equalsIgnoreCase("si")) {
-                        System.out.print("Ingrese el estado a filtrar: ");
-                        String estadoFiltro = teclado.next();
-                        while (!estadoFiltro.equalsIgnoreCase("PROGRAMADA") && !estadoFiltro.equalsIgnoreCase("COMPLETADA") && !estadoFiltro.equalsIgnoreCase("CANCELADA") && !estadoFiltro.equalsIgnoreCase("EN PROGRESO")) {
-                            System.out.println("Estado no válido. Ingrese 'PROGRAMADA', 'COMPLETADA', 'CANCELADA' o 'EN PROGRESO': ");
-                            estadoFiltro = teclado.next();
-                        }
-                        for (Cita c : controlador.listarCitasPorEstado(estadoFiltro)) {
-                            System.out.println(c);
-                        }
-                    } else {
-                        for (Cita c : controlador.getCitas()) {
-                            System.out.println(c);
-                        }
-                    }
-                    break;
-
-                case 6:
                     System.out.print("Ingrese el ID de la cita a reagendar: ");
                     int idCitaCambiar = teclado.nextInt();
                     boolean resultado = controlador.reagendarCita(idCitaCambiar);
@@ -279,7 +276,7 @@ public class Main {
                         System.out.println("No se pudo reagendar la cita (no existe o sin disponibilidad).");
                     }
                     break;
-                case 7:
+                case 6: // Operaciones de manager
                     System.out.println("\nOperaciones de manager:");
                     System.out.println("Seleccione una opción:");
                     System.out.println("1. Encontrar personal disponible");
@@ -288,9 +285,8 @@ public class Main {
                     System.out.println("4. Análisis de Utilización");
                     System.out.println("5. Reportes de personal");
                     System.out.println("6. Reporte de Citas");
-                    System.out.println("7. Análisis financiero");
-                    System.out.println("8. Historial de Reagendamientos");
-                    System.out.println("9. Volver al menú principal");
+                    System.out.println("7. Historial de Reagendamientos");
+                    System.out.println("8. Volver al menú principal");
                     System.out.println("Seleccione una opción:");
                     int opcionManager = teclado.nextInt();
 
@@ -318,7 +314,7 @@ public class Main {
                         case 2:
                         // Reportes de Nómina por departamento
                             System.out.println("\nNómina por departamento:");
-                            manager.mostrarNominaTotalPorDepartamento(departamentos);
+                            manager.mostrarNominaTotalPorDepartamento();
                             break;
                         case 3:
                         // Gestión de Conflictos de Horarios
@@ -339,47 +335,37 @@ public class Main {
                             break;
                         case 6:
                         // Reporte de Citas
-                            System.out.println("CITAS POR CATEGORIA:");
-                            System.out.println("PROGRAMADAS");
-                            for (Cita c : controlador.listarCitasPorEstado("PROGRAMADA")) {
-                                System.out.println(c);
-                            }
-                            System.out.println("COMPLETADAS");
-                            if (controlador.listarCitasPorEstado("COMPLETADAS").isEmpty()) {
-                                System.out.println("No hay citas completadas.");
-                            }
-                            for (Cita c : controlador.listarCitasPorEstado("COMPLETADA")) {
-                                System.out.println(c);
-                            }
-                            System.out.println("CANCELADAS");
-                            if (controlador.listarCitasPorEstado("CANCELADA").isEmpty()) {
-                                System.out.println("No hay citas canceladas.");
-                            }
-                            for (Cita c : controlador.listarCitasPorEstado("CANCELADA")) {
-                                System.out.println(c);
-                            }
-                            System.out.println("EN PROGRESO");
-                            for (Cita c: controlador.getCitas()) {
-                                controlador.citaEnProgreso(c);
-                            }
-                            if (controlador.listarCitasPorEstado("EN PROGRESO").isEmpty()) {
-                                System.out.println("No hay citas en progreso.");
-                            }
-                            for (Cita c : controlador.listarCitasPorEstado("EN PROGRESO")) {
-                                System.out.println(c);
+                            System.out.print("¿Desea filtrar por estado? (si/no): ");
+                            String filtrar = teclado.next();
+                            if (filtrar.equalsIgnoreCase("si")) {
+                                System.out.print("Ingrese el estado a filtrar: ");
+                                String estadoFiltro = teclado.next();
+                                while (!estadoFiltro.equalsIgnoreCase("PROGRAMADA") && !estadoFiltro.equalsIgnoreCase("COMPLETADA") && !estadoFiltro.equalsIgnoreCase("CANCELADA") && !estadoFiltro.equalsIgnoreCase("EN PROGRESO")) {
+                                    System.out.println("Estado no válido. Ingrese 'PROGRAMADA', 'COMPLETADA', 'CANCELADA' o 'EN PROGRESO': ");
+                                    estadoFiltro = teclado.next();
+                                }
+                                for (Cita c : controlador.listarCitasPorEstado(estadoFiltro)) {
+                                    System.out.println(c);
+                                }
+                            } else {
+                                for (Cita c : controlador.getCitas()) {
+                                    System.out.println(c);
+                                }
                             }
                             break;
-
                         case 7:
-                        // Análisis financiero
-                            System.out.println("\nAnálisis financiero:");
-                            manager.mostrarNominaTotalPorDepartamento(departamentos);
-                            break;
-                        case 8:
                         // Historial de Reagendamientos
                             System.out.println("\nHistorial de Reagendamientos:");
-                            break;
-                        case 9:
+                            for (Cita c : controlador.getCitas()) {
+                                        if (c.getHistorial().size() > 1) {
+                                            System.out.println("Cita ID: " + c.getId());
+                                            for (String evento : c.getHistorial()) {
+                                                System.out.println("  " + evento);
+                                            }
+                                        }
+                                    }
+                                    break;
+                        case 8: // Opcion para volver al menú principal
                             System.out.println("Volviendo al menú principal.");
                             break;
                         default:
@@ -387,7 +373,7 @@ public class Main {
                             break;
                     }
                     break;
-                case 8:
+                case 7: // Opción para salir del sistema
                     System.out.println("Saliendo del sistema. ¡Hasta luego!");
                     break;
 
