@@ -52,10 +52,10 @@ public class Controlador {
         }
         return historial;
     }
-    public Medico buscarMedicoDisponible(Class tipo, LocalDate fecha, LocalTime hora) {
-        for (Medico m : medicos) {
-            if (tipo.isInstance(m) && disponible(m, fecha, hora)) {
-                return m;
+    public Medico buscarMedicoDisponible(LocalDate fecha, LocalTime hora) {
+        for (Cita c : citas) {
+            if (disponible(c.getMedico(), fecha, hora)) {
+                return c.getMedico();
             }
         }
         return null;
@@ -63,46 +63,46 @@ public class Controlador {
 
     public boolean disponible(Medico m, LocalDate fecha, LocalTime hora) {
         for (Cita c : citas) {
-            if (!c.getMedico().equals(m)) {
-                return false;
-            } else if (!c.getFecha().equals(fecha)) {
-                return false;
-            } else if (!c.getHora().equals(hora)) {
-                return false;
-            } else if (c.getEstado().equals("CANCELADA")) {
-                return false;
+            if (c.getMedico().equals(m) && c.getFecha().equals(fecha) && c.getHora().equals(hora) && !c.getEstado().equals("CANCELADA")) {
+                return false; 
             }
         }
-        return true;
+        return true; 
     }
 
     public ArrayList<Medico> getMedicos() {
         return medicos;
     }
 
-
     public boolean reagendarCita(int idCita) {
         for (Cita c : citas) {
             if (c.getId() == idCita) {
                 LocalDate fecha = c.getFecha();
-                LocalTime hora = c.getHora();
+                LocalTime horaActual = c.getHora();
                 Medico medico = c.getMedico();
-                for (LocalTime h = hora.plusHours(1); h.isBefore(LocalTime.MAX); h = h.plusHours(1)) {
-                    if (disponible(medico, fecha, h)) {
-                        c.reagendar(fecha, h, medico);
+
+                // Busca otro horario en el mismo día, de 8:00 a 18:00 (excepto el actual)
+                for (int h = 8; h <= 18; h++) {
+                    LocalTime nuevoHorario = LocalTime.of(h, 0);
+                    if (nuevoHorario.equals(horaActual)) continue;
+                    if (disponible(medico, fecha, nuevoHorario)) {
+                        c.reagendar(fecha, nuevoHorario, medico);
                         return true;
                     }
                 }
-                Medico otro = buscarMedicoDisponible(medico.getClass(), fecha, hora);
-                if (otro != null && !otro.equals(medico)) {
-                    c.reagendar(fecha, hora, otro);
-                    return true;
-                } else {
-                    return false;
+
+                // Si no hay horario libre, busca otro médico disponible en ese horario
+                for (Medico m : medicos) {
+                    if (!m.equals(medico) && disponible(m, fecha, horaActual)) {
+                        c.reagendar(fecha, horaActual, m);
+                        return true;
+                    }
                 }
+                // Si no hay opciones, no reagenda
+                return false;
             }
         }
-        return false;
+        return false; // No existe la cita
     }
 
     public boolean verificarExistencia(int id) {

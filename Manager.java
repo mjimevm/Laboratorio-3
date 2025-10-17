@@ -42,18 +42,6 @@ public class Manager {
         return resultado;
     }
 
-    // 3. Detectar conflictos (Se puede resolver mediante el reagendamiento de citas)
-    public String detectarConflictos() {
-        ArrayList<Cita> citas = controlador.getCitas();
-        for (Cita cita : citas) {
-            for (Cita otraCita : citas) {
-                if (!cita.equals(otraCita) || cita.getMedico().equals(otraCita.getMedico()) || cita.getFecha().equals(otraCita.getFecha()) || cita.getHora().equals(otraCita.getHora())) {
-                    return "Conflicto detectado entre las citas ID: " + cita.getId() + " y ID: " + otraCita.getId() + ". Se recomienda reagendar una de las citas.";
-                }
-            }
-        }
-        return "No hay conflictos encontrados";
-    }
     // 5. Analizar utilización del personal médico
     public ArrayList<String> analizarUtilizacionPersonal() {
         ArrayList<Medico> medicos = controlador.getMedicos();

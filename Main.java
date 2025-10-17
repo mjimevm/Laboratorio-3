@@ -265,9 +265,32 @@ public class Main {
 
                     break;
 
-                case 5:
+                case 5: // Reagendar Citas
                     System.out.print("Ingrese el ID de la cita a reagendar: ");
                     int idCitaCambiar = teclado.nextInt();
+                    System.out.println("¿El médico original está de acuerdo? (si/no): ");
+                    String confirmacionMedico = teclado.next();
+                    if (confirmacionMedico.equalsIgnoreCase("no")) {
+                        System.out.println("Reagendamiento cancelado. El médico no está de acuerdo.");
+                        System.out.print("¿Desea cancelar la cita? (si/no): ");
+                        String cancelarCita = teclado.next();
+                        if (cancelarCita.equalsIgnoreCase("si")) {
+                            Cita citaACancelar = null;
+                            for (Cita c : controlador.getCitas()) {
+                                if (c.getId() == idCitaCambiar) {
+                                    citaACancelar = c;
+                                    break;
+                                }
+                            }
+                            if (citaACancelar != null) {
+                                controlador.citaCancelada(citaACancelar);
+                                System.out.println("Cita cancelada exitosamente.");
+                            } else {
+                                System.out.println("No se pudo cancelar la cita (no existe).");
+                            }
+                        }
+                        break;
+                    }
                     boolean resultado = controlador.reagendarCita(idCitaCambiar);
                     if (resultado) {
                         System.out.println("Cita reagendada exitosamente.");
@@ -282,78 +305,139 @@ public class Main {
                     System.out.println("1. Encontrar personal disponible");
                     System.out.println("2. Reportes de Nómina por departamento");
                     System.out.println("3. Gestión de Conflictos de Horarios");
-                    System.out.println("4. Análisis de Utilización");
-                    System.out.println("5. Reportes de personal");
-                    System.out.println("6. Reporte de Citas");
-                    System.out.println("7. Historial de Reagendamientos");
-                    System.out.println("8. Volver al menú principal");
+                    System.out.println("4. Reportes de personal");
+                    System.out.println("5. Reporte de Citas");
+                    System.out.println("6. Historial de Reagendamientos");
+                    System.out.println("7. Volver al menú principal");
                     System.out.println("Seleccione una opción:");
                     int opcionManager = teclado.nextInt();
 
                     switch (opcionManager) {
                         case 1:
-                        // Encontrar personal Disponible por tipo y horario
-                            System.out.print("Tipo de médico (General, enfermero, radiólogo, farmacéutico): ");
-                            String tipoMed = teclado.next();
-                            System.out.print("Fecha (YYYY-MM-DD): ");
-                            LocalDate fechaDisp = LocalDate.parse(teclado.next());
-                            System.out.print("Hora (HH:mm): ");
-                            LocalTime horaDisp = LocalTime.parse(teclado.next());
-                            for (Medico m : controlador.getMedicos()) {
-                                if (m.getClass().getSimpleName().equalsIgnoreCase(tipoMed)) {
-                                    Medico disponible = controlador.buscarMedicoDisponible(m.getClass(), fechaDisp, horaDisp);
-                                    if (disponible != null) {
-                                        System.out.println("Médico disponible encontrado: " + disponible);
-                                    } else {
-                                        System.out.println("No hay médicos disponibles de ese tipo en la fecha y hora indicadas.");
-                                    }
+                        // Encontrar personal Disponible por tipo  ahora
+                            System.out.println("\nEncontrar personal médico disponible:");
+                            System.out.print("Ingrese el tipo de médico (DoctorGeneral, Enfermero, Radiologo, Farmaceutico): ");
+                            String tipoMedicoDisponible = teclado.next();
+                            while (tipoMedicoDisponible.equalsIgnoreCase("DoctorGeneral") == false && tipoMedicoDisponible.equalsIgnoreCase("Enfermero") == false && tipoMedicoDisponible.equalsIgnoreCase("Radiologo") == false && tipoMedicoDisponible.equalsIgnoreCase("Farmaceutico") == false) {
+                                System.out.println("Tipo de médico no válido. Ingrese un tipo válido: ");
+                                tipoMedicoDisponible = teclado.next();
+                            }
+                            System.out.print("Ingrese la fecha (YYYY-MM-DD): ");
+                            String fechaDisponible = teclado.next();
+                            LocalDate fechaDisp;
+                            try {
+                                fechaDisp = LocalDate.parse(fechaDisponible, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                            } catch (Exception e) {
+                                System.out.println("Formato de fecha no válido.");
+                                break;
+                            }
+                            System.out.print("Ingrese la hora (HH:mm): ");
+                            String horaDisponible = teclado.next();
+                            LocalTime horaDisp;
+                            try {
+                                horaDisp = LocalTime.parse(horaDisponible, DateTimeFormatter.ofPattern("HH:mm"));
+                            } catch (Exception e) {
+                                System.out.println("Formato de hora no válido.");
+                                break;
+                            }
+                            
+                            for (Cita c : controlador.getCitas()) {
+                                if (controlador.getMedicos().isEmpty()) {
+                                    System.out.println("No hay médicos registrados.");
                                     break;
+                                }
+                                for (Medico m : controlador.getMedicos()) {
+                                    m = c.getMedico();
+                                    if (m.getClass().getSimpleName().equals(tipoMedicoDisponible)) {
+                                        if (c.getHora().equals(horaDisp) && c.getFecha().equals(fechaDisp)) {
+                                            System.out.println("Doctor/a " + m.getNombre() + " no está disponible en ese momento.");
+                                            break;
+                                        } else {
+                                            System.out.println("Doctor/a " + m.getNombre() + " está disponible en ese momento.");
+                                            break;
+                                        }
+                                    } 
                                 }
                             }
                             break;
                         case 2:
-                        // Reportes de Nómina por departamento
+                            // Reportes de Nómina por departamento
                             System.out.println("\nNómina por departamento:");
                             manager.mostrarNominaTotalPorDepartamento();
                             break;
                         case 3:
-                        // Gestión de Conflictos de Horarios
-                            System.out.println("\nGestión de conflictos de horarios: ");
-                            manager.detectarConflictos();
+                            // Gestión de Conflictos de Horarios
+                            System.out.println("\nGestión de conflictos de horarios:");
+                            boolean huboConflictos = false;
+                            for (int i = 0; i < controlador.getCitas().size(); i++) {
+                                Cita citaA = controlador.getCitas().get(i);
+                                for (int j = i + 1; j < controlador.getCitas().size(); j++) {
+                                    Cita citaB = controlador.getCitas().get(j);
+                                    if (citaA.getMedico().equals(citaB.getMedico()) && citaA.getFecha().equals(citaB.getFecha()) && citaA.getHora().equals(citaB.getHora()) && !citaA.getEstado().equals("CANCELADA") && !citaB.getEstado().equals("CANCELADA")) {
+                                        System.out.println("Conflicto detectado entre las citas ID: " + citaA.getId() + " y ID: " + citaB.getId() + ". Se recomienda reagendar una de las citas.");
+                                        huboConflictos = true;
+                                    }
+                                }
+                            }
+                            if (!huboConflictos) {
+                                System.out.println("No se detectaron conflictos de horarios.");
+                            }
                             break;
                         case 4:
-                        // Análisis de Utilización
-                            System.out.println("\nAnálisis de utilización del personal médico:");
-                            manager.analizarUtilizacionPersonal();
-                            break;
-                        case 5:
-                        // Reportes de personal
+                            // Reportes de personal
                             System.out.println("\nReporte de personal médico:");
                             for (Medico m : controlador.getMedicos()) {
                                 System.out.println("Cantidad de citas para " + m.getNombre() + ": " + controlador.getCitas().stream().filter(c -> c.getMedico().equals(m)).count());
                             }
                             break;
-                        case 6:
-                        // Reporte de Citas
-                            System.out.print("¿Desea filtrar por estado? (si/no): ");
-                            String filtrar = teclado.next();
-                            if (filtrar.equalsIgnoreCase("si")) {
-                                System.out.print("Ingrese el estado a filtrar: ");
-                                String estadoFiltro = teclado.next();
-                                while (!estadoFiltro.equalsIgnoreCase("PROGRAMADA") && !estadoFiltro.equalsIgnoreCase("COMPLETADA") && !estadoFiltro.equalsIgnoreCase("CANCELADA") && !estadoFiltro.equalsIgnoreCase("EN PROGRESO")) {
-                                    System.out.println("Estado no válido. Ingrese 'PROGRAMADA', 'COMPLETADA', 'CANCELADA' o 'EN PROGRESO': ");
-                                    estadoFiltro = teclado.next();
-                                }
-                                for (Cita c : controlador.listarCitasPorEstado(estadoFiltro)) {
-                                    System.out.println(c);
-                                }
-                            } else {
+                        case 5:
+                            // Reporte de Citas
+                            System.out.println("\nReporte de citas:");
+                            System.out.println("¿Desea filtar por estado? (si/no): ");
+                            String resp = teclado.next();
+                            for (Medico m : controlador.getMedicos()) {
                                 for (Cita c : controlador.getCitas()) {
-                                    System.out.println(c);
+                                    if (controlador.getMedicos().isEmpty()) {
+                                        System.out.println("No hay médicos registrados.");
+                                        break;
+                                    }
+                                    if (resp.equalsIgnoreCase("si")) {
+                                        System.out.print("Ingrese el estado a filtrar (PROGRAMADA, EN PROGRESO, COMPLETADA, CANCELADA, REAGENDADA): ");
+                                        String estadoFiltro = teclado.next().toUpperCase();
+                                        while (estadoFiltro.equals("PROGRAMADA") == false && estadoFiltro.equals("EN PROGRESO") == false && estadoFiltro.equals("COMPLETADA") == false && estadoFiltro.equals("CANCELADA") == false && estadoFiltro.equals("REAGENDADA") == false) {
+                                            System.out.println("Estado no válido. Ingrese un estado válido: ");
+                                            estadoFiltro = teclado.next().toUpperCase();
+                                        }
+                                        if (estadoFiltro.equals("PROGRAMADA")) {
+                                            System.out.println("\nCitas PROGRAMADAS:");
+                                            manager.mostrarCitasPorEstadoYMedico("PROGRAMADA", m);
+                                            break;
+                                        } else if (estadoFiltro.equals("EN PROGRESO")) {
+                                            System.out.println("\nCitas EN PROGRESO:");
+                                            manager.mostrarCitasPorEstadoYMedico("EN PROGRESO", m);
+                                            break;
+                                        } else if (estadoFiltro.equals("COMPLETADA")) {
+                                            System.out.println("\nCitas COMPLETADAS:");
+                                            manager.mostrarCitasPorEstadoYMedico("COMPLETADA", m);
+                                            break;
+                                        } else if (estadoFiltro.equals("CANCELADA")) {
+                                            System.out.println("\nCitas CANCELADAS:");
+                                            manager.mostrarCitasPorEstadoYMedico("CANCELADA", m);
+                                            break;
+                                        } else if (estadoFiltro.equals("REAGENDADA")) {
+                                            System.out.println("\nCitas REAGENDADAS:");
+                                            manager.mostrarCitasPorEstadoYMedico("REAGENDADA", m);
+                                            break;
+                                        }
+                                    } else {
+                                        if (c.getMedico().equals(m)) {
+                                            System.out.println(c);
+                                        }
+                                    }
                                 }
                             }
                             break;
-                        case 7:
+                        case 6:
                         // Historial de Reagendamientos
                             System.out.println("\nHistorial de Reagendamientos:");
                             for (Cita c : controlador.getCitas()) {
@@ -365,7 +449,7 @@ public class Main {
                                         }
                                     }
                                     break;
-                        case 8: // Opcion para volver al menú principal
+                        case 7: // Opción para volver al menú principal
                             System.out.println("Volviendo al menú principal.");
                             break;
                         default:
