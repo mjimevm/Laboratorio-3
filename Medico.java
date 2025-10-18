@@ -1,3 +1,4 @@
+// Clase abstracta Medico
 public abstract class Medico {
     // Atributos
     protected int id;
@@ -29,8 +30,10 @@ public abstract class Medico {
     public double getSalarioBase() {
         return salarioBase;
     }
+    // Método abstracto para calcular salario
     public abstract double calcularSalario(double a);
 
+    // Polimorfismo
     @Override
     public String toString() {
         return "[ID: " + id + ", Nombre: " + nombre + ", Departamento: " + departamento + ", Años de Experiencia: " + experiencia + ", Salario Base: " + salarioBase + "]";

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cita {
+    // Atributos
     private int id;
     private String nombrePaciente;
     private Medico medico;
@@ -13,6 +14,7 @@ public class Cita {
     private String estado;
     private List<String> historial = new ArrayList<>();
 
+    // Constructor
     public Cita(int id, String nombre, Medico m, LocalDate fecha, LocalTime hora, String tipo, String estado) {
         this.id = id;
         this.nombrePaciente = nombre;
@@ -23,6 +25,7 @@ public class Cita {
         this.estado = estado;
         historial.add("Creada: " + fecha + " a las " + hora + ":00");
     }
+    // Getters y Setters
     public int getId() { 
         return id; 
     }
@@ -60,6 +63,7 @@ public class Cita {
         historial.add("Cambio de estado a: " + nuevoEstado);
     }
 
+    // Método para reagendar la cita
     public String reagendar(LocalDate nuevaFecha, LocalTime nuevaHora, Medico nuevoMedico) {
         historial.add("Reagendada de " + fecha + " " + hora + ":00 a " + nuevaFecha + " " + nuevaHora + ":00 con " + nuevoMedico.getNombre());
         this.fecha = nuevaFecha;
@@ -68,6 +72,7 @@ public class Cita {
         setEstado("REAGENDADA");
         return "Cita #" + id + " reagendada a " + nuevaFecha + " " + nuevaHora + ":00 con médico: " + nuevoMedico.getNombre();
     }
+    // Polimorfismo
     @Override
     public String toString() {
         return "[Cita #" + id + "] Paciente: " + nombrePaciente + ", Médico: " + medico.getNombre() + ", Fecha: " + fecha + ", Hora: " + hora + ":00, Tipo: " + tipo + ", Estado: " + estado;

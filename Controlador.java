@@ -3,19 +3,23 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class Controlador {
+    // Atributos
     private ArrayList<Medico> medicos = new ArrayList<>();
     private ArrayList<Cita> citas = new ArrayList<>();
     private ArrayList<String> historial = new ArrayList<>();
     private ArrayList<String> departamentos = new ArrayList<>();
 
+    // Agrega un médico a la lista de médicos
     public void contratarMedico(Medico m) {
         medicos.add(m);
     }
 
+    // Agrega una cita a la lista de citas
     public void agregarCita(Cita c) {
         citas.add(c);
     }
 
+    // Lista citas por su estado en el que se encuentra
     public ArrayList<Cita> listarCitasPorEstado(String estado) {
         ArrayList<Cita> resultado = new ArrayList<>();
         for (Cita c : citas) {
@@ -24,25 +28,16 @@ public class Controlador {
             }
         }
         return resultado;
-    }    
+    } 
+    // Getters y Setters
     public ArrayList<String> getDepartamentos() {
         return departamentos;
     }
     public void setDepartamentos(ArrayList<String> departamentos) {
         this.departamentos = departamentos;
     }
-    public ArrayList<String> listarDepartamentos() {
-        ArrayList<String> resultado = new ArrayList<>();
-        for (Medico m : medicos) {
-            String dep = m.getDepartamento();
-            if (dep != null && !resultado.contains(dep)) {
-                resultado.add(dep);
-            }
-        }
-        return resultado;
-    }
 
-
+    // Obtener historial de reagendamientos de una cita específica
     public ArrayList<String> obtenerHistorialReagendamientos(int idCita) {
         ArrayList<String> historial = new ArrayList<>();
         for (Cita c : citas) {
@@ -52,15 +47,7 @@ public class Controlador {
         }
         return historial;
     }
-    public Medico buscarMedicoDisponible(LocalDate fecha, LocalTime hora) {
-        for (Cita c : citas) {
-            if (disponible(c.getMedico(), fecha, hora)) {
-                return c.getMedico();
-            }
-        }
-        return null;
-    }
-
+    // Verificar disponibilidad de un médico en una fecha y hora específicas
     public boolean disponible(Medico m, LocalDate fecha, LocalTime hora) {
         for (Cita c : citas) {
             if (c.getMedico().equals(m) && c.getFecha().equals(fecha) && c.getHora().equals(hora) && !c.getEstado().equals("CANCELADA")) {
@@ -74,6 +61,7 @@ public class Controlador {
         return medicos;
     }
 
+    // Reagendar una cita
     public boolean reagendarCita(int idCita) {
         for (Cita c : citas) {
             if (c.getId() == idCita) {
@@ -98,13 +86,13 @@ public class Controlador {
                         return true;
                     }
                 }
-                // Si no hay opciones, no reagenda
                 return false;
             }
         }
-        return false; // No existe la cita
+        return false; 
     }
 
+    // Verificar si existe tal cita o medico por ID
     public boolean verificarExistencia(int id) {
         for (Cita c : citas) {
             if (c.getId() == id) {
@@ -119,9 +107,6 @@ public class Controlador {
         return true;
     }
 
-    public ArrayList<String> getHistorial() {
-        return historial;
-    }
     public String agregarEventoHistorial(Cita cita) {
         historial.add("Cita ID: " + cita.getId() + " - " + cita.getEstado());
         return "Evento agregado al historial.";
@@ -129,18 +114,10 @@ public class Controlador {
     public ArrayList<Cita> getCitas() {
         return citas;
     }
-    public void citaCompletada(Cita cita) {
-         cita.setEstado("COMPLETADA");
-         agregarEventoHistorial(cita);
-    }
+    
+    // Setea el estado de una cita a CANCELADA y agrega el evento al historial
     public void citaCancelada(Cita cita) {
         cita.setEstado("CANCELADA");
         agregarEventoHistorial(cita);
-    }
-    public void citaEnProgreso(Cita cita) {
-        if (cita.getHora() == LocalTime.now() && cita.getFecha().isEqual(LocalDate.now())) {
-            cita.setEstado("EN PROGRESO");
-            agregarEventoHistorial(cita);
-        }
     }
 }

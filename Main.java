@@ -1,3 +1,9 @@
+// Jimena Vásquez
+// Carné: 25092
+// Programación Orientada a Objetos
+// Laboratorio 3 - Herencia
+
+// Imports
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -6,11 +12,14 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        // Entrada al sistema
         System.out.println("Bienvenido al sistema de gestión de médicos.");
-        Controlador controlador = new Controlador();
-        Manager manager = new Manager(controlador);
+        Controlador controlador = new Controlador(); // controlador central
+        Manager manager = new Manager(controlador); // capa de manager
         Scanner teclado = new Scanner(System.in);
         int opcion = 0;
+
+        // Lista de departamentos disponibles (fijos)
         ArrayList<String> departamentos = new ArrayList<>();
         departamentos.add("Cardiologia");
         departamentos.add("Neurologia");
@@ -23,9 +32,10 @@ public class Main {
         departamentos.add("Cirugia");
         departamentos.add("Dermatologia");
 
+        // Asignar departamentos al controlador
         controlador.setDepartamentos(departamentos);
 
-        while (opcion != 7) {
+        while (opcion != 7) { // bucle principal del menú
             System.out.println("\n--- Menú Principal ---");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Agregar Médico");
@@ -35,10 +45,12 @@ public class Main {
             System.out.println("5. Cambiar Cita");
             System.out.println("6. Operaciones de manager");
             System.out.println("7. Salir");
+            System.out.print("Opción: ");
             opcion = teclado.nextInt();
 
             switch (opcion) {
                 case 1:
+                    // Agregar nuevos médicos en un ciclo
                     String respuesta = "si";
                     while (respuesta.equalsIgnoreCase("si")) {
                         System.out.print("Ingrese el ID del médico: ");
@@ -67,6 +79,7 @@ public class Main {
                         System.out.print("Ingrese el tipo de médico (General, enfermero, radiologo, farmaceutico): ");
                         String tipoMedico = teclado.next();
                         Medico medico;
+                        // Crear la subclase correspondiente según el tipo
                         switch (tipoMedico.toLowerCase()) {
                             case "general":
                                 System.out.print("Ingrese la especialización del médico general: ");
@@ -117,6 +130,7 @@ public class Main {
                     }
                     break;
                 case 2:
+                    // Mostrar lista completa de médicos
                     System.out.println("Mostrando todo el personal médico:");
                     if (controlador.getMedicos().isEmpty()) {
                         System.out.println("No hay médicos registrados.");
@@ -127,6 +141,7 @@ public class Main {
                     }
                     break;
                 case 3:
+                    // Calcular salario por médico, según su tipo
                     System.out.println("\nCalcular salario por médico");
                     for (Medico m : controlador.getMedicos()) {
                         System.out.println("[ID: #" + m.getId() + "]: " + m.getNombre());
@@ -174,6 +189,7 @@ public class Main {
                     } 
                     break;
                 case 4:
+                    // Agendar una nueva cita (con validaciones)
                     if (controlador.getMedicos().isEmpty()) {
                         System.out.println("Primero debes agregar médicos.");
                         break;
@@ -205,6 +221,7 @@ public class Main {
                     String fechaStr = teclado.next();
                     LocalDate fecha = null;
                     try {
+                        // parseo seguro de fecha
                         fecha = LocalDate.parse(fechaStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     } catch (Exception e) {
                         System.out.println("Formato de fecha no válido.");
@@ -214,6 +231,7 @@ public class Main {
                     String horaStr = teclado.next();
                     LocalTime hora;
                     try {
+                        // parseo seguro de hora
                         hora = LocalTime.parse(horaStr, DateTimeFormatter.ofPattern("HH:mm"));
                     } catch (Exception e) {
                         System.out.println("Formato de hora no válido.");
@@ -222,6 +240,7 @@ public class Main {
                     System.out.print("Tipo de cita: ");
                     String tipoCita = teclado.next();
 
+                    // Validación de capacidad diaria para ciertos tipos
                     if (medicoElegido.getClass() == DoctorGeneral.class) {
                         int citasEnFecha = 0;
                         for (Cita c : controlador.getCitas()) {
@@ -248,6 +267,8 @@ public class Main {
                             break;
                         }
                     }
+
+                    // Determinar estado inicial según fecha/hora relativa
                     String estado;
                     if (fecha.isBefore(LocalDate.now()) && hora.isBefore(LocalTime.now())) {
                         estado = "COMPLETADA";
@@ -271,6 +292,7 @@ public class Main {
                     System.out.println("¿El médico original está de acuerdo? (si/no): ");
                     String confirmacionMedico = teclado.next();
                     if (confirmacionMedico.equalsIgnoreCase("no")) {
+                        // Si el médico no está de acuerdo, se puede cancelar
                         System.out.println("Reagendamiento cancelado. El médico no está de acuerdo.");
                         System.out.print("¿Desea cancelar la cita? (si/no): ");
                         String cancelarCita = teclado.next();
@@ -294,7 +316,7 @@ public class Main {
                     boolean resultado = controlador.reagendarCita(idCitaCambiar);
                     if (resultado) {
                         System.out.println("Cita reagendada exitosamente.");
-                        System.out.println(controlador.obtenerHistorialReagendamientos(idCitaCambiar));
+                        System.out.println(controlador.obtenerHistorialReagendamientos(idCitaCambiar)); // mostrar historial
                     } else {
                         System.out.println("No se pudo reagendar la cita (no existe o sin disponibilidad).");
                     }
@@ -314,7 +336,7 @@ public class Main {
 
                     switch (opcionManager) {
                         case 1:
-                        // Encontrar personal Disponible por tipo  ahora
+                        // Encontrar personal Disponible por tipo
                             System.out.println("\nEncontrar personal médico disponible:");
                             System.out.print("Ingrese el tipo de médico (DoctorGeneral, Enfermero, Radiologo, Farmaceutico): ");
                             String tipoMedicoDisponible = teclado.next();
@@ -341,13 +363,14 @@ public class Main {
                                 break;
                             }
                             
+                            // Revisar disponibilidad contra las citas existentes
                             for (Cita c : controlador.getCitas()) {
                                 if (controlador.getMedicos().isEmpty()) {
                                     System.out.println("No hay médicos registrados.");
                                     break;
                                 }
                                 for (Medico m : controlador.getMedicos()) {
-                                    m = c.getMedico();
+                                    m = c.getMedico(); // revisar por cita
                                     if (m.getClass().getSimpleName().equals(tipoMedicoDisponible)) {
                                         if (c.getHora().equals(horaDisp) && c.getFecha().equals(fechaDisp)) {
                                             System.out.println("Doctor/a " + m.getNombre() + " no está disponible en ese momento.");
@@ -363,7 +386,10 @@ public class Main {
                         case 2:
                             // Reportes de Nómina por departamento
                             System.out.println("\nNómina por departamento:");
-                            manager.mostrarNominaTotalPorDepartamento();
+                            ArrayList<String> nomina = manager.calcularNominaPorDepartamento();
+                            for (String n : nomina) {
+                                System.out.println(n);
+                            }
                             break;
                         case 3:
                             // Gestión de Conflictos de Horarios
@@ -384,14 +410,14 @@ public class Main {
                             }
                             break;
                         case 4:
-                            // Reportes de personal
+                            // Reportes de personal: conteo de citas por médico
                             System.out.println("\nReporte de personal médico:");
                             for (Medico m : controlador.getMedicos()) {
                                 System.out.println("Cantidad de citas para " + m.getNombre() + ": " + controlador.getCitas().stream().filter(c -> c.getMedico().equals(m)).count());
                             }
                             break;
                         case 5:
-                            // Reporte de Citas
+                            // Reporte de Citas con opción de filtrado
                             System.out.println("\nReporte de citas:");
                             System.out.println("¿Desea filtar por estado? (si/no): ");
                             String resp = teclado.next();
